@@ -5,6 +5,13 @@ from tensorflow.keras import layers, models
 import json
 from datetime import datetime
 import time
+from sklearn.utils.class_weight import compute_class_weight
+import numpy as np
+from tensorflow.keras import backend as K
+from sklearn.metrics import precision_recall_curve
+import tensorflow as tf
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.metrics import confusion_matrix
 
 cwd = os.getcwd()
 
@@ -20,11 +27,13 @@ EPOCHS = 30            # Nombre epochs d'entraînement
 # Générateur de données pour l'entraînement avec augmentation d'images
 train_datagen = ImageDataGenerator(
     rescale=1./255,           # Normalisation des pixels entre 0 et 1
-    rotation_range=20,        # Rotation aléatoire des images jusqu'à 20°
-    width_shift_range=0.2,    # Décalage horizontal des images jusqu'à 20%
-    height_shift_range=0.2,   # Décalage vertical des images jusqu'à 20%
-    zoom_range=0.2,           # Zoom aléatoire jusqu'à 20%
-    horizontal_flip=True      # Flip horizontal aléatoire
+    rotation_range=30,        # Rotation aléatoire des images jusqu'à 30°
+    width_shift_range=0.3,    # Décalage horizontal des images jusqu'à 30%
+    height_shift_range=0.3,   # Décalage vertical des images jusqu'à 30%
+    zoom_range=0.3,           # Zoom aléatoire jusqu'à 30%
+    horizontal_flip=True,     # Flip horizontal aléatoire
+    vertical_flip=True,      # Ajouté
+    brightness_range=[0.8, 1.2]  # Ajouté: variation de luminosité
 )
 
 # Générateur de données pour la validation (sans augmentation)
@@ -46,6 +55,19 @@ val_generator = val_datagen.flow_from_directory(
     class_mode='binary'       # Classification binaire (pneumonie ou non)
 )
 
+# Vérifiez la distribution des classes
+print(f"Distribution des classes: {train_generator.class_indices}")
+print(f"Échantillons par classe: NORMAL={train_generator.classes.tolist().count(0)}, PNEUMONIA={train_generator.classes.tolist().count(1)}")
+
+# Si déséquilibre, utilisez class_weight pour compenser
+class_weights = compute_class_weight(
+    'balanced',
+    classes=np.unique(train_generator.classes),
+    y=train_generator.classes
+)
+class_weight_dict = {i: class_weights[i] for i in range(len(class_weights))}
+print(f"Poids des classes: {class_weight_dict}")
+
 # Définition du modèle de réseau de neurones convolutionnel (CNN)
 model = models.Sequential([
     # Première couche de convolution avec 32 filtres de taille 3x3 et activation ReLU
@@ -64,17 +86,25 @@ model = models.Sequential([
     layers.Flatten(),
     
     # Couche dense entièrement connectée avec 128 neurones et activation ReLU
-    layers.Dense(128, activation='relu'),
+    layers.Dense(128, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.001)),
     layers.Dropout(0.5),  # Dropout de 50% pour éviter le surapprentissage
     
     # Couche de sortie avec une activation sigmoïde pour une classification binaire
     layers.Dense(1, activation='sigmoid')  # Sortie binaire (0 = NORMAL, 1 = PNEUMONIA)
 ])
 
+# Utiliser une fonction de perte qui pénalise davantage les faux positifs
+def custom_loss(y_true, y_pred):
+    # Réduire la pénalité pour les faux positifs car votre modèle est trop sensible
+    false_pos_weight = 1.0  # Réduit de 2.0 à 1.0
+    bce = K.binary_crossentropy(y_true, y_pred)
+    false_positives = (1 - y_true) * y_pred * false_pos_weight
+    return bce + K.mean(false_positives)
+
 # Compilation du modèle avec l'optimiseur Adam et la fonction de perte adaptée à une classification binaire
 model.compile(
     optimizer='adam',  # Optimiseur adaptatif qui ajuste le taux d'apprentissage automatiquement
-    loss='binary_crossentropy',  # Fonction de perte pour la classification binaire
+    loss=custom_loss,  # Utiliser la perte personnalisée
     metrics=[  # Liste des métriques utilisées pour évaluer la performance du modèle
         'accuracy',  # Précision globale des prédictions
         'categorical_accuracy',  # Exactitude pour chaque catégorie
@@ -91,10 +121,18 @@ model.summary()
 start_time = time.time()
 
 # Entraînement du modèle sur les données d'entraînement et validation sur les données de validation
+early_stopping = EarlyStopping(
+    monitor='val_loss',
+    patience=5,
+    restore_best_weights=True
+)
+
 history = model.fit(
-    train_generator,  # Données d'entraînement générées
-    validation_data=val_generator,  # Données de validation
-    epochs=EPOCHS  # Nombre epochs définies précédemment
+    train_generator,
+    validation_data=val_generator,
+    epochs=EPOCHS,
+    class_weight=class_weight_dict,
+    callbacks=[early_stopping]
 )
 
 # Calcul de la durée totale de l'entraînement
@@ -240,3 +278,15 @@ plt.savefig(f"reports/graphs/accuracy-loss-{date}.png")
 
 # Fermeture de la figure pour éviter l'affichage multiple
 plt.close()
+
+# Après l'entraînement, évaluer différents seuils de décision
+# Obtenir les prédictions du modèle (probabilités)
+y_pred_val = model.predict(val_generator)
+# Extraire les vraies classes
+y_true = val_generator.classes
+# Calculer précision et rappel pour différents seuils
+precision, recall, thresholds = precision_recall_curve(y_true, y_pred_val)
+# Trouver le meilleur seuil (vous pourriez vouloir maximiser F1 ou un autre critère)
+f1_scores = 2 * (precision * recall) / (precision + recall)
+best_threshold = thresholds[np.argmax(f1_scores)]
+print(f"Meilleur seuil de décision: {best_threshold}")
