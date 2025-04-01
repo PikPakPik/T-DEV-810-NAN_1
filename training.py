@@ -5,6 +5,11 @@ from tensorflow.keras import layers, models
 import json
 from datetime import datetime
 import time
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--epochs', dest='epochs', type=int, help='Set the number of epochs for training', default=30)
+args = parser.parse_args()
 
 cwd = os.getcwd()
 
@@ -15,7 +20,7 @@ validation_dir = os.path.join(cwd, 'chest_xray', 'val')
 # Paramètres globaux de traitement des images
 IMG_SIZE = (224, 224)  # Taille des images après redimensionnement
 BATCH_SIZE = 32        # Taille du batch pour l'entraînement
-EPOCHS = 30            # Nombre epochs d'entraînement
+EPOCHS = args.epochs            # Nombre epochs d'entraînement
 
 # Générateur de données pour l'entraînement avec augmentation d'images
 train_datagen = ImageDataGenerator(
