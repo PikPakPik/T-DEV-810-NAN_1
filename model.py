@@ -136,20 +136,18 @@ plt.savefig(f"reports/graphs/confusion-matrix-{date}.png")
 # Fermeture de la figure pour éviter l'affichage multiple
 plt.close()
 
-report = classification_report(y_true, y_pred, target_names=['Class 0', 'Class 1', 'Class 2'], labels=[0, 1, 2])
+report = classification_report(y_true, y_pred, target_names=['Class 0', 'Class 1'], labels=[0, 1], zero_division=0)
 
 # Courbes ROC
 fpr = dict()
 tpr = dict()
 roc_auc = dict()
 
-for i in range(3):
-    fpr[i], tpr[i], _ = roc_curve(y_true, [1 if x == i else 0 for x in y_pred])
-    roc_auc[i] = auc(fpr[i], tpr[i])
-
 # Affichage des courbes ROC
 plt.figure(figsize=(8, 6))
-for i in range(3):
+for i in range(2):
+    fpr[i], tpr[i], _ = roc_curve(y_true, [1 if x == i else 0 for x in y_pred])
+    roc_auc[i] = auc(fpr[i], tpr[i])
     plt.plot(fpr[i], tpr[i], label=f'Classe {i} (AUC = {roc_auc[i]:0.2f})')
 
 plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
