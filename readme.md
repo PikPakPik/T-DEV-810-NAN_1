@@ -42,23 +42,26 @@ reports/ => Contains training & testing logs and reports
 - Yann PLOUHINEC
 - Paul FAVREAU
 
-## How to Run
-
-1. Install the required packages:
-```sh
-pip install -r requirements.txt
-```
-
-2. Run the training script:
-```sh
-python training.py
-```
-
-3. Run the model after training:
-```sh
-python model.py
-```
-
 ## Additional Information
 
 For more details, refer to the [project specification](T-DEV-810_project.pdf).
+
+## Sources
+
+The sources used for the project are available in the file [sources.md](sources.md).
+
+## How to use
+
+### To use the CNN model, follow these steps:
+1. Open cnn_training.ipynb in Jupyter Notebook.
+2. Run the cells in order to train the model.
+3. After training, the model will be saved in the models directory.
+4. To test, open cnn_predict.ipynb in Jupyter Notebook and run the cells.
+
+### To use the ResNet model, follow these steps:
+1. Open ResNet.ipynb in Jupyter Notebook.
+2. Run the cells in order to train the model.
+
+### To use the VGG model, follow these steps:
+1. Open vgg16.ipynb in Jupyter Notebook.
+2. Run the cells in order to train the model.
