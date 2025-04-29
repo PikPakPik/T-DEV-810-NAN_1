@@ -1,0 +1,22 @@
+{
+    "2025-04-29T09:47:22": {
+        "accuracy": 0.8413461446762085,
+        "loss": 0.35659757256507874,
+        "auc": 0.5897436141967773,
+        "categorical_accuracy": 0.9317507147789001,
+        "precision": 0.8051282167434692,
+        "recall": 0.9336565732955933,
+        "samples": 624,
+        "confusion_matrix": [
+            [
+                111,
+                123
+            ],
+            [
+                176,
+                214
+            ]
+        ],
+        "graph_path": "reports/graphs/confusion-matrix-20250429094722.png"
+    }
+}
