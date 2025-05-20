@@ -15,8 +15,6 @@ def generate_augmented_images(folder, to_augment_class, image_size=(256, 256)):
     if not os.path.exists(augmented_dir):
         os.mkdir(f"{folder}_augmented/{to_augment_class}")
 
-    augmented_count = len(os.listdir(augmented_dir))
-
     # Create a data generator for the NORMAL images with random transformations
     datagen = ImageDataGenerator(
         rotation_range=20,
