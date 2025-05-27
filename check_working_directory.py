@@ -12,10 +12,10 @@ if os.path.exists('common'):
     else:
         print("❌ Le fichier '__init__.py' est manquant dans common/")
     
-    if os.path.exists('common/data_augmentation.py'):
-        print("✅ Le fichier 'data_augmentation.py' existe dans common/")
+    if os.path.exists('common/fill_data.py'):
+        print("✅ Le fichier 'fill_data.py' existe dans common/")
     else:
-        print("❌ Le fichier 'data_augmentation.py' est manquant dans common/")
+        print("❌ Le fichier 'fill_data.py' est manquant dans common/")
 else:
     print("❌ Le dossier 'common' n'est pas trouvé dans le répertoire actuel")
     print("Vous devez naviguer vers le répertoire racine du projet")
@@ -27,7 +27,7 @@ if os.getcwd() not in sys.path:
 
 # Test d'importation
 try:
-    from common.data_augmentation import generate_augmented_images
+    from common.fill_data import generate_augmented_images
     print("✅ Importation réussie !")
 except ImportError as e:
     print(f"❌ Erreur d'importation : {e}") 
