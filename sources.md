@@ -6,3 +6,4 @@
 - https://www.kaggle.com/code/dogaanismail/transfer-learning-for-detecting-pneumonia-disease
 - https://www.kaggle.com/code/orvile/pneumonia-detection-using-dl-tensorflow
 - https://www.kaggle.com/code/youssefbedeer/project-pneumonia-detection
+- https://keras.io/guides/transfer_learning/
