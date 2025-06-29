@@ -4,6 +4,8 @@
 
 This project focuses on medical image classification using chest X-rays. It includes scripts for model training and evaluation, and is organized with separate directories for training, validation, and testing images.
 
+__Documentation__ : [https://epitechfr-my.sharepoint.com/:w:/g/personal/alexandre_tressel_epitech_eu/EThtgguGLnRHqttzBHMiCf8BpL75bbGoehW6-W6AgGIPCQ](https://epitechfr-my.sharepoint.com/:w:/g/personal/alexandre_tressel_epitech_eu/EThtgguGLnRHqttzBHMiCf8BpL75bbGoehW6-W6AgGIPCQ)
+
 ## Workspace Structure
 
 ```
@@ -65,3 +67,4 @@ The sources used for the project are available in the file [sources.md](sources.
 ### To use the VGG model, follow these steps:
 1. Open vgg16.ipynb in Jupyter Notebook.
 2. Run the cells in order to train the model.
+
